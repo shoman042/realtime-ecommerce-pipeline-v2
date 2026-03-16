@@ -1,15 +1,47 @@
-# Ignore CSV data files
+# --- Data Files (Crucial for your project) ---
+# Ignore all CSV files anywhere in the project
 *.csv
+# Ignore specific folders containing datasets
+/raw_data/
+/archive/
 /data/
+/datasets/
 
-# Ignore Python cache
+# --- Python ---
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+pip-log.txt
+pip-delete-this-directory.txt
 
-# Ignore OS files
+# --- Docker ---
+# If you have local data volumes for MySQL or Kafka
+.docker/
+*/mysql_data/
+*/kafka_data/
+*/zookeeper_data/
+
+# --- Airflow ---
+# Ignore Airflow logs and database
+/logs/
+airflow.db
+airflow.cfg
+webserver_config.py
+
+# --- IDEs & OS ---
+.vscode/
+.idea/
+*.swp
+*.swo
 .DS_Store
 Thumbs.db
 
-# Ignore IDE settings
-.vscode/
-.idea/
+# --- Logs & Temp Files ---
+*.log
+tmp/
+temp/
