@@ -1,42 +1,44 @@
 # 🚀 Real-Time E-Commerce Data Pipeline (V2)
 ### **End-to-End Data Engineering Project | Olist Dataset**
 
-## 📌 Project Overview
+---
+
+## 🏗️ Project Overview
 This project implements a scalable **Real-Time ETL Pipeline** using the Medallion Architecture. It processes live e-commerce transactions, handles data transformations on the fly, and ensures data integrity through professional orchestration and containerization.
 
 ---
 
-## 🛠️ Tech Stack: Why, When, and How?
+## 🛠️ الأدوات المستخدمة: الشرح التفصيلي (Tech Stack)
 
-### 1. **Apache Kafka (The Message Broker)**
-* **Function:** High-throughput, distributed messaging system.
-* **When to use:** When dealing with high-velocity data (streaming) where data loss is not an option.
-* **Why in this project?** It acts as a **buffer** between the data producer and the processing engine. It ensures that even if Spark faces a delay, the order data is safely stored in **Topics**.
-* **Implementation:** Used a dedicated `orders_topic` where Python producers stream JSON-formatted transaction data.
+### 1. **Apache Kafka (وسيط الرسائل - Message Broker)**
+* **الوظيفة (Function):** يعمل كمنصة لنقل البيانات الضخمة والرسائل اللحظية بسرعة عالية وتخزينها بشكل مؤقت.
+* **متى نستخدمها (When to use):** نستخدمها عندما نتعامل مع "بيانات متدفقة" (Streaming Data) بسرعة كبيرة، ونحتاج لضمان عدم ضياع أي بيان في حالة توقف أو بطء النظام المعالج.
+* **لماذا استخدمتها هنا؟ (Why here):** لتعمل كـ **Buffer** (مخزن مؤقت) بين سكريبتات إنتاج البيانات (Producers) ومحرك المعالجة (Spark). هذا يضمن استمرارية تدفق بيانات الطلبات (Orders) حتى لو كان هناك ضغط عالي على المعالجة.
+* **التنفيذ (How):** قمت بإنشاء `orders_topic` لاستقبال بيانات المعاملات بصيغة JSON وتوزيعها على المشتركين.
 
-### 2. **Apache Spark - PySpark (The Processing Brain)**
-* **Function:** Unified analytics engine for large-scale data processing.
-* **When to use:** When you need to perform complex transformations (Cleaning, Aggregations) on massive datasets in real-time.
-* **Why in this project?** Used **Spark Structured Streaming** to consume Kafka messages instantly, enforce data schemas, and clean the data before it reaches the database.
-* **Implementation:** Developed a transformation logic to convert data types, filter null values, and join streams.
+### 2. **Apache Spark - PySpark (محرك المعالجة - Processing Brain)**
+* **الوظيفة (Function):** محرك موحد لتحليل ومعالجة البيانات الضخمة (Big Data) بسرعة فائقة في الذاكرة (In-Memory).
+* **متى نستخدمها (When to use):** عندما نحتاج لإجراء عمليات تحويل وتنظيف معقدة (Transformations) على كميات هائلة من البيانات في وقت قياسي أو لحظي.
+* **لماذا استخدمتها هنا؟ (Why here):** استخدمت تقنية **Spark Structured Streaming** لقراءة البيانات فور وصولها لكافكا، والقيام بتنظيفها (Cleaning)، وتصحيح أنواع البيانات، وفلترة القيم الناقصة قبل تخزينها.
+* **التنفيذ (How):** تطوير منطق برمجى بلغة Python لتحويل البيانات الخام إلى بيانات مهيأة للتحليل (Silver Layer).
 
-### 3. **Apache Airflow (The Orchestrator)**
-* **Function:** Platform to programmatically author, schedule, and monitor workflows.
-* **When to use:** When you have a multi-step pipeline and need to manage dependencies, retries, and scheduling.
-* **Why in this project?** To **automate** the entire flow. Instead of manual execution, Airflow DAGs manage the timing and order of data ingestion tasks.
-* **Implementation:** Created DAGs to trigger ingestion scripts and monitor the health of the pipeline.
+### 3. **Apache Airflow (المنظم - The Orchestrator)**
+* **الوظيفة (Function):** منصة لإدارة وجدولة ومراقبة مسارات العمل (Workflows) برمجياً.
+* **متى نستخدمها (When to use):** عندما يكون لدينا سلسلة من المهام المعتمدة على بعضها البعض (Dependencies) ونريد أتمتة تشغيلها ومراقبة فشلها أو نجاحها.
+* **لماذا استخدمتها هنا؟ (Why here):** لتحويل المشروع من مجرد أكواد يدوية إلى **Pipeline** احترافي يعمل تلقائياً. الأيرفلو يضمن تشغيل سكريبتات سحب البيانات في مواعيد محددة وإعادة المحاولة (Retry) في حالة الفشل.
+* **التنفيذ (How):** إنشاء **DAGs** تنظم ترتيب تشغيل المهام وتراقب حالة النظام.
 
-### 4. **Docker & Docker Compose (Infrastructure)**
-* **Function:** OS-level virtualization to deliver software in packages called containers.
-* **When to use:** When you want a consistent environment across different machines (Development vs. Production).
-* **Why in this project?** To avoid "dependency hell." It allows Kafka, Spark, and MySQL to run in isolated environments with a single command.
-* **Implementation:** Defined a multi-container architecture in `docker-compose.yml` managing networking and port mapping.
+### 4. **Docker & Docker Compose (البنية التحتية - Infrastructure)**
+* **الوظيفة (Function):** تقنية الحاويات التي تتيح تشغيل البرامج في بيئات معزولة تماماً تضمن عمل الكود على أي جهاز.
+* **متى نستخدمها (When to use):** عندما نريد تجنب مشاكل "اختلاف الإعدادات بين الأجهزة" (It works on my machine) ولتسهيل تنصيب الأدوات المعقدة.
+* **لماذا استخدمتها هنا؟ (Why here):** لتشغيل منظومة كاملة (Kafka, Spark, MySQL, Airflow) بضغطة زر واحدة، مما يضمن أن المشروع سيعمل بنفس الكفاءة عند أي مهندس آخر.
+* **التنفيذ (How):** صياغة ملف `docker-compose.yml` يحدد الشبكات، الأحجام (Volumes)، والمنافذ (Ports) لكل أداة.
 
-### 5. **MySQL (The Serving Layer)**
-* **Function:** Reliable Relational Database Management System (RDBMS).
-* **When to use:** When you need a structured "Source of Truth" for cleaned data that BI tools (like Power BI) can easily query.
-* **Why in this project?** It serves as the **Gold/Silver Layer** where processed data is stored, making it ready for downstream analytical queries.
-* **Implementation:** Connected Spark to MySQL using **JDBC Connectors** for real-time data sinking.
+### 5. **MySQL (مستودع البيانات - The Serving Layer)**
+* **الوظيفة (Function):** قاعدة بيانات علائقية موثوقة لتخزين البيانات المنظمة.
+* **متى نستخدمها (When to use):** عندما نحتاج لمصدر نهائي للمعلومات (Source of Truth) يكون جاهزاً للربط مع أدوات تحليل البيانات مثل Power BI أو Tableau.
+* **لماذا استخدمتها هنا؟ (Why here):** لتعمل كمستقر نهائي للبيانات "النظيفة" بعد معالجتها، مما يسمح للمحللين بكتابة استعلامات SQL واستخراج تقارير الأعمال بسهولة.
+* **التنفيذ (How):** ربط Spark بقاعدة البيانات باستخدام **JDBC Connectors** لنقل البيانات المعالجة لحظياً.
 
 ---
 
