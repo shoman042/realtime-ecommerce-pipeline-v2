@@ -1,0 +1,60 @@
+services:
+  # 1. خدمة التنسيق (Zookeeper)
+  zookeeper_yusuf:
+    image: confluentinc/cp-zookeeper:7.4.0
+    container_name: zookeeper_yusuf
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+
+  # 2. محرك الرسائل (Kafka)
+  kafka_yusuf:
+    image: confluentinc/cp-kafka:7.4.0
+    container_name: kafka_yusuf
+    depends_on:
+      - zookeeper_yusuf
+    ports:
+      - "9094:9094"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper_yusuf:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka_yusuf:9092,EXTERNAL://localhost:9094
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,EXTERNAL:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_HEAP_OPTS: "-Xms256M -Xmx256M"
+
+  # 3. محرك المعالجة (Spark) - النسخة المستقرة
+  spark_master:
+    image: apache/spark-py:latest
+    container_name: spark_master
+    user: root
+    environment:
+      - SPARK_MODE=master
+    volumes:
+      - .:/app
+    ports:
+      - "8080:8080"
+      - "7077:7077"
+    # هذا الأمر يضمن بقاء الحاوية تعمل (Keep-alive)
+    command: /opt/spark/bin/spark-class org.apache.spark.deploy.master.Master
+
+  # 4. قاعدة البيانات (MySQL)
+  mysql_yusuf:
+    image: mysql:8.0
+    container_name: mysql_yusuf
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: olist_db
+
+  # 5. واجهة التحكم في القاعدة (phpMyAdmin)
+  phpmyadmin_yusuf:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin_yusuf
+    ports:
+      - "8081:80"
+    environment:
+      PMA_HOST: mysql_yusuf
+      MYSQL_ROOT_PASSWORD: root
